@@ -1,0 +1,16 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+
+description='''${mod_description}'''
+[[dependencies.pixelmonaddon]]
+modId="pixelmon"
+mandatory=true
+versionRange="[9.0.0,)"
+ordering="AFTER"
+side="SERVER"

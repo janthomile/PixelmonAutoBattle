@@ -1,0 +1,28 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+gradle/wrapper/gradle-wrapper.jar
+
+# other
+eclipse
+run
+libs
+planning.txt
+
+# Files from Forge MDK
+forge*changelog.txt
