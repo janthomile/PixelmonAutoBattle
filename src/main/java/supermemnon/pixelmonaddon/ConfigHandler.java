@@ -20,7 +20,7 @@ public class ConfigHandler {
     public static String messageAutoBattleEnable = "Auto Battling ON";
     public static String messageAutoBattleDisable = "Auto Battling OFF";
     public static String messageAutoBattleFail = "You can't auto battle right now!";
-    public static String messageAutoBattleResultWin = "Your %p defeated a %w!!";
+    public static String messageAutoBattleResultWin = "Your %p defeated a %w!";
     public static String messageAutoBattleResultWinHurt = "Your %p defeated a %w, but was hurt!";
     public static String messageAutoBattleResultDraw = "Your %p fought a %w to a draw, and retreated!";
     public static String messageAutoBattleResultDefeat = "Your %p was defeated by a %w!";
