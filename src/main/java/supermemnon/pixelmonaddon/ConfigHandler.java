@@ -25,6 +25,7 @@ public class ConfigHandler {
     public static String messageAutoBattleResultDraw = "Your %p fought a %w to a draw, and retreated!";
     public static String messageAutoBattleResultDefeat = "Your %p was defeated by a %w!";
     public static String messageLowHealthReturn = "Your %p tired itself out and returned!";
+    public static String messageNoPermissionToggle = "You don't have permission to Autobattle.";
 
     public static ForgeConfigSpec.ConfigValue<String> itemDropMethodConf;
     public static DROP_METHOD itemDropMethod;
@@ -33,11 +34,13 @@ public class ConfigHandler {
     public static ForgeConfigSpec.ConfigValue<Double> exp_multiplier;
     public static ExperienceGainType exp_gain_type = ExperienceGainType.UNKNOWN;
     public static ForgeConfigSpec.ConfigValue<Integer> autoBattleSeekRange;
-    public static ForgeConfigSpec.ConfigValue<Boolean> allowMultiplePartyMons;
+//    public static ForgeConfigSpec.ConfigValue<Boolean> allowMultiplePartyMons;
     public static ForgeConfigSpec.ConfigValue<Integer> landslideLevelDifference;
     public static ForgeConfigSpec.ConfigValue<Double> baseDamageHealthPercent;
     public static ForgeConfigSpec.ConfigValue<Boolean> allowFaintFromAutoBattle;
     public static ForgeConfigSpec.ConfigValue<Boolean> stopXpBeforeLevelUp;
+    public static ForgeConfigSpec.ConfigValue<Boolean> useHappinessTimer;
+    public static ForgeConfigSpec.ConfigValue<Integer> minimumHappinessRequired;
 
     /*
     Here's the actual config handling lol
@@ -87,6 +90,14 @@ public class ConfigHandler {
                 .comment("\nWhether levelup is prevented by XP received from autobattling. If false, XP gain is stopped at 5 points before levelup." +
                         "\nDefault value is false (pokemon can levelup)")
                 .define("no-levelup", false);
+        useHappinessTimer = configBuilder
+                .comment("\nWhether autobattling pokemon slowly lose happiness as they autobattle (1 per minute)." +
+                        "\nDefault value is false (pokemon do not lose happiness)")
+                .define("enable-happiness-timer", false);
+        minimumHappinessRequired = configBuilder
+                .comment("\nAn autobattling pokemon will refuse to autobattle, or stop autobattling, if happiness is at or below this number." +
+                        "\nDefault value is -1 (no minimum)")
+                .define("minimum-happiness", -1);
 
 //        configBuilder = configBuilder.pop();
         configSpec = configBuilder.build();

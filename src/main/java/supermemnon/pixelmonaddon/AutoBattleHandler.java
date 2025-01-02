@@ -10,6 +10,7 @@ import com.pixelmonmod.pixelmon.api.util.helpers.DropItemHelper;
 import com.pixelmonmod.pixelmon.api.util.helpers.RandomHelper;
 import com.pixelmonmod.pixelmon.battles.BattleRegistry;
 import com.pixelmonmod.pixelmon.battles.attacks.Effectiveness;
+import com.pixelmonmod.pixelmon.battles.controller.BattleController;
 import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.entities.npcs.registry.DropItemRegistry;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
@@ -157,6 +158,8 @@ public class AutoBattleHandler {
         public  void endAutoBattle() {
             trainerGoal.target = null;
 
+            trainerGoal.checkFatigued();
+
             BattleResultType result = BattleHandler.calculateBattleResult(trainerMon, wildMon);
 
             //Since this is called by the trainerGoal, NEVER have it try and remove itself!
@@ -203,10 +206,6 @@ public class AutoBattleHandler {
                 EXPHandler.handleExpCalc(wildMon.getPokemon(), trainerMon.getPokemon(), (ServerPlayerEntity) trainerMon.getOwner());
                 EXPHandler.handlePlayerExp((ServerPlayerEntity) trainerMon.getOwner(), wildMon);
                 BattleHandler.handleDrops(this);
-//                wildMon.hurt(new EntityDamageSource("Autobattle", trainerMon), Float.MAX_VALUE);
-//                if (wildMon.isInvulnerable()) {
-//                    wildMon.kill();
-//                }
                 wildMon.kill();
             }
             // Didn't win but damaged the opponent
@@ -370,7 +369,7 @@ public class AutoBattleHandler {
         }
 
         public static boolean isValidAutoBattle(PixelmonEntity pixelmon) {
-            return !pixelmon.isDeadOrDying() && !pixelmon.isFlying() && !pixelmon.isSwimming() && !pixelmon.isBossPokemon() && !pixelmon.getPokemon().isShiny() && !pixelmon.getPokemon().isLegendary() && !NBTHandler.getTag(pixelmon, NBTHandler.autoBattlingTag);
+            return !pixelmon.isDeadOrDying() && (pixelmon.battleController == null) && !pixelmon.isFlying() && !pixelmon.isSwimming() && !pixelmon.isBossPokemon() && !pixelmon.getPokemon().isShiny() && !pixelmon.getPokemon().isLegendary() && !NBTHandler.getTag(pixelmon, NBTHandler.autoBattlingTag);
         }
 
         //This handles the item drops, it's meant to be called in the itemdropsevent.

@@ -27,7 +27,9 @@ public class AutoBattleAI {
         AutoBattleHandler.AutoBattleInstance instance;
         PixelmonEntity owner;
         PixelmonEntity target = null;
-
+        static final int maxHappinessTimerTicks = 1200;
+        int happinessTimerTicks;
+        boolean fatigued;
         /*
             Following Behaviour
          */
@@ -53,11 +55,16 @@ public class AutoBattleAI {
 //            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Added SeekWildMonGoal to %s", mon.getName().getString()));
             this.instance = i;
             this.owner = mon;
+            this.happinessTimerTicks = 1;
+            checkFatigued();
             AutoBattleHandler.NBTHandler.setTag(owner, AutoBattleHandler.NBTHandler.autoBattleEnableTag, false);
             setFlags(EnumSet.of(Flag.TARGET, Flag.MOVE,Flag.LOOK,Flag.JUMP));
             swapFollowTrainer();
         }
 
+        public void checkFatigued() {
+            this.fatigued = !(owner.getPokemon().getHealthPercentage() >= 5.0f) || !(this.owner.getPokemon().getFriendship() > ConfigHandler.minimumHappinessRequired.get());
+        }
         public void warpToTrainer() {
             if (owner.getOwner() == null) {
                 return;
@@ -130,10 +137,7 @@ public class AutoBattleAI {
         }
 
         public void tickBattling() {
-//            PixelmonAutobattle.getLOGGER().log(Level.INFO, "TickBattling");
             if (target == null) {
-//                PixelmonAutobattle.getLOGGER().log(Level.INFO, "\tTickBattling null target");
-//                PixelmonAutobattle.getLOGGER().log(Level.INFO, "No target... swapping to seek");
                 swapSeeking();
                 return;
             }
@@ -168,7 +172,7 @@ public class AutoBattleAI {
         public void tickFollowTrainer() {
             pathCooldown--;
             //If target is null we do stuff regarding finding a target
-            if (target == null && (owner.getPokemon().getHealthPercentage() >= 5.0f)) {
+            if (target == null && !fatigued) {
                 if (owner.getTarget() != null && (owner.getTarget() instanceof PixelmonEntity) && AutoBattleHandler.BattleHandler.isValidAutoBattle((PixelmonEntity) owner.getTarget())) {
                     target = (PixelmonEntity) owner.getTarget();
                     owner.setTarget(null);
@@ -240,15 +244,22 @@ public class AutoBattleAI {
             switch(currentState) {
                 case SEEKING: {
                     tickSeeking();
-                    return;
+                    break;
                 }
                 case BATTLING: {
                     tickBattling();
-                    return;
+                    break;
                 }
                 case FOLLOW: {
                     tickFollowTrainer();
                     return;
+                }
+            }
+            if (ConfigHandler.useHappinessTimer.get()) {
+                happinessTimerTicks++;
+                if ((happinessTimerTicks % maxHappinessTimerTicks) == 0) {
+                    owner.getPokemon().decreaseFriendship(1);
+                    checkFatigued();
                 }
             }
         }

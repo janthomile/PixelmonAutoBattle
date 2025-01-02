@@ -4,6 +4,8 @@ import com.pixelmonmod.pixelmon.api.events.KeyEvent;
 import com.pixelmonmod.pixelmon.comm.packetHandlers.EnumKeyPacketMode;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -12,7 +14,10 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.server.permission.PermissionAPI;
 import org.apache.logging.log4j.Level;
+
+import static supermemnon.pixelmonaddon.ConfigHandler.messageNoPermissionToggle;
 
 public class EventHandler {
 
@@ -49,16 +54,11 @@ public class EventHandler {
             if (!event.player.isCrouching() || !(event.key == EnumKeyPacketMode.ActionKeyEntity)) {
                 return;
             }
-//            PixelmonAutobattle.getLOGGER().log(Level.INFO, "Key Pressed");
+            if (!PermissionAPI.hasPermission(event.player, PixelmonAutobattle.TOGGLE_PERMISSION)) {
+                event.player.sendMessage(new StringTextComponent(messageNoPermissionToggle).withStyle(TextFormatting.RED), event.player.getUUID());
+                return;
+            }
             AutoBattleHandler.BattleHandler.toggleAutoBattle(event.player);
         }
-//        @SubscribeEvent
-//        public static void onSendOut(PokemonSendOutEvent event) {
-//            Optional<PixelmonEntity> pixelmon =  event.getPokemon().getPixelmonEntity();
-//            if (!pixelmon.isPresent()) {
-//                return;
-//            }
-//            pixelmon.get().goalSelector.addGoal(AutoBattleAI.autoBattlePriority, new AutoBattleAI.SeekWildMonGoal());
-//        }
     }
 }

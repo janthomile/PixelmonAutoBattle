@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 public class PixelmonAutobattle
 {
     public static final String MODID = "pixelmonautobattle";
+    public static final String TOGGLE_PERMISSION = MODID + ".toggle";
     private static final Logger LOGGER = LogManager.getLogger();
     private static PixelmonAutobattle instance;
     public static PixelmonAutobattle getInstance() {
@@ -29,17 +30,14 @@ public class PixelmonAutobattle
 
     public PixelmonAutobattle() {
         ConfigHandler.initConfig();
-
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         Pixelmon.EVENT_BUS.register(EventHandler.ModEvents.class);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.configSpec, "pixelmon-autobattle.toml");
-
     }
 
     private void setup(final FMLCommonSetupEvent event)
     {
         ConfigHandler.postInitConfig();
-//        PermissionAPI.registerNode("pixelmonautobattle.autobattle.current", DefaultPermissionLevel.NONE, "");
-//        PermissionAPI.registerNode("pixelmonautobattle.autobattle.multi", DefaultPermissionLevel.NONE, "");
+        PermissionAPI.registerNode(TOGGLE_PERMISSION, DefaultPermissionLevel.ALL, "");
     }
 }
