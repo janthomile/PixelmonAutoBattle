@@ -130,7 +130,7 @@ public class ConfigHandler {
                 .comment("\nList of string specifications to validate, based on written pokemon spec (same as used in /pokespawn and /pokeedit)." +
                         "\nFollows the rules set by 'spec-target-type' for how to handle spec validation." +
                         "\nIf left empty, it will not be used.")
-                .defineList("spec-target-list", Arrays.asList("species:bulbasaur", "type:grass"), entry -> true);
+                .defineList("spec-target-list", Arrays.asList("species:bulbasaur", "otn:safari"), entry -> true);
 
 //        configBuilder = configBuilder.pop();
         configSpec = configBuilder.build();
