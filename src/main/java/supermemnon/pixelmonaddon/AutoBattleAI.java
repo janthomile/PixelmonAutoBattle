@@ -55,7 +55,7 @@ public class AutoBattleAI {
 //            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Added SeekWildMonGoal to %s", mon.getName().getString()));
             this.instance = i;
             this.owner = mon;
-            this.happinessTimerTicks = 1;
+            this.happinessTimerTicks = maxHappinessTimerTicks;
             checkFatigued();
             AutoBattleHandler.NBTHandler.setTag(owner, AutoBattleHandler.NBTHandler.autoBattleEnableTag, false);
             setFlags(EnumSet.of(Flag.TARGET, Flag.MOVE,Flag.LOOK,Flag.JUMP));
@@ -256,8 +256,9 @@ public class AutoBattleAI {
                 }
             }
             if (ConfigHandler.useHappinessTimer.get()) {
-                happinessTimerTicks++;
-                if ((happinessTimerTicks % maxHappinessTimerTicks) == 0) {
+                happinessTimerTicks--;
+                if (happinessTimerTicks < 1) {
+                    happinessTimerTicks = maxHappinessTimerTicks;
                     owner.getPokemon().decreaseFriendship(ConfigHandler.happinessTimerDecrement.get());
                     checkFatigued();
                 }
