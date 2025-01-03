@@ -11,6 +11,7 @@ import net.minecraftforge.common.util.Constants;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ConfigHandler {
@@ -129,7 +130,7 @@ public class ConfigHandler {
                 .comment("\nList of string specifications to validate, based on written pokemon spec (same as used in /pokespawn and /pokeedit)." +
                         "\nFollows the rules set by 'spec-target-type' for how to handle spec validation." +
                         "\nIf left empty, it will not be used.")
-                .defineList("spec-target-list", new ArrayList<>(), entry -> true);
+                .defineList("spec-target-list", Arrays.asList("species:bulbasaur", "type:grass"), entry -> true);
 
 //        configBuilder = configBuilder.pop();
         configSpec = configBuilder.build();
@@ -140,9 +141,6 @@ public class ConfigHandler {
         expDropMethod = DROP_METHOD.valueOf(expDropMethodConf.get());
         spawnerTargetType = TARGET_TYPE.valueOf(spawnerTargetTypeConf.get());
         specTargetType = TARGET_TYPE.valueOf(specTargetTypeConf.get());
-        if (specTargetListConf.get().isEmpty()) { //Easier to check the enum than check for empty every time.
-            specTargetType = TARGET_TYPE.NONE;
-        }
     }
 
     public static boolean validateSpawnerTarget(PixelmonEntity mon) {

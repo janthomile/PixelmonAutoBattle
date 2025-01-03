@@ -251,11 +251,13 @@ public class AutoBattleHandler {
                 //We can handle making a new instance here because we can also destroy it
                 AutoBattleInstance instance = new AutoBattleInstance(pixelmonEntity);
                 AutoBattleInstance.addAutoBattleInstance(pixelmonEntity.getUUID(), instance);
-                player.sendMessage(new StringTextComponent(ConfigHandler.messageAutoBattleEnable), player.getUUID());
+                sendActionBarNotif(player, new StringTextComponent(ConfigHandler.messageAutoBattleEnable));
+                player.playSound(SoundEvents.ARROW_HIT, 0.5f, 1.99f);
             }
             else {
                 AutoBattleInstance.removeAutoBattleInstance(pixelmonEntity.getUUID(), true);
-                player.sendMessage(new StringTextComponent(ConfigHandler.messageAutoBattleDisable), player.getUUID());
+                sendActionBarNotif(player, new StringTextComponent(ConfigHandler.messageAutoBattleDisable));
+                player.playSound(SoundEvents.ARROW_HIT, 0.5f, 0.49f);
             }
             NBTHandler.setTag(pixelmonEntity, NBTHandler.autoBattleEnableTag, value);
         }
