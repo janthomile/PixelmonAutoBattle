@@ -362,10 +362,12 @@ public class AutoBattleHandler {
                 return result;
             }
             float minHealth = ConfigHandler.allowFaintFromAutoBattle.get() ? 0.0f : 1.0f;
-            tmon.setHealthPercentage((float) Math.max(minHealth, tmon.getHealthPercentage() - ConfigHandler.baseDamageHealthPercent.get() * receiveEffectiveness * (Math.abs((float) levelDifference) / 100)));
+            double tMonDamage = ConfigHandler.baseDamageHealthPercent.get() * receiveEffectiveness * (Math.abs((double)(100 - levelDifference)) / 100);
+            tmon.setHealthPercentage((float) Math.max(minHealth, tmon.getHealthPercentage() - tMonDamage));
             //In a draw the opponent is still damaged
             if (result == BattleResultType.DRAW) {
-                wmon.setHealthPercentage((float) Math.max(minHealth, wmon.getHealthPercentage() - ConfigHandler.baseDamageHealthPercent.get() * sendEffectiveness * (Math.abs((float) levelDifference) / 100)));
+                double wMonDamage = ConfigHandler.baseDamageHealthPercent.get() * sendEffectiveness * (Math.abs((double)(100 - levelDifference)) / 100);
+                wmon.setHealthPercentage((float) Math.max(minHealth, wmon.getHealthPercentage() - wMonDamage));
             }
             return result;
         }
