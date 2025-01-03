@@ -52,8 +52,11 @@ public class ConfigHandler {
     public static ForgeConfigSpec.ConfigValue<Double> baseDamageHealthPercent;
     public static ForgeConfigSpec.ConfigValue<Boolean> allowFaintFromAutoBattle;
     public static ForgeConfigSpec.ConfigValue<Boolean> stopXpBeforeLevelUp;
+
     public static ForgeConfigSpec.ConfigValue<Boolean> useHappinessTimer;
     public static ForgeConfigSpec.ConfigValue<Integer> minimumHappinessRequired;
+    public static ForgeConfigSpec.ConfigValue<Integer> happinessTimerRate;
+    public static ForgeConfigSpec.ConfigValue<Integer> happinessTimerDecrement;
 
     public static ForgeConfigSpec.ConfigValue<String> spawnerTargetTypeConf;
     public static TARGET_TYPE spawnerTargetType = TARGET_TYPE.NONE;
@@ -108,14 +111,24 @@ public class ConfigHandler {
                 .comment("\nWhether levelup is prevented by XP received from autobattling. If false, XP gain is stopped at 5 points before levelup." +
                         "\nDefault value is false (pokemon can levelup)")
                 .define("no-levelup", false);
-        useHappinessTimer = configBuilder
-                .comment("\nWhether autobattling pokemon slowly lose happiness as they autobattle (1 per minute)." +
-                        "\nDefault value is false (pokemon do not lose happiness)")
-                .define("enable-happiness-timer", false);
         minimumHappinessRequired = configBuilder
                 .comment("\nAn autobattling pokemon will refuse to autobattle, or stop autobattling, if happiness is at or below this number." +
                         "\nDefault value is -1 (no minimum)")
                 .define("minimum-happiness", -1);
+
+        useHappinessTimer = configBuilder
+                .comment("\nWhether autobattling pokemon slowly lose happiness as they autobattle (1 per minute)." +
+                        "\nDefault value is false (pokemon do not lose happiness)")
+                .define("enable-happiness-timer", false);
+        happinessTimerRate = configBuilder
+                .comment("\nThe rate (in seconds) between each happiness decrement." +
+                        "\nDefault value is 60 seconds. Minimum value is 1 second.")
+                .defineInRange("happiness-timer-rate", 60,1,Integer.MAX_VALUE);
+        happinessTimerDecrement = configBuilder
+                .comment("\nThe amount of happiness decremented when each happiness timer ends." +
+                        "\nDefault value is 1. Only accepts values between 1-255.")
+                .defineInRange("happiness-timer-decrement", 1,1,255);
+
         spawnerTargetTypeConf = configBuilder
                 .comment("\nWhether there is special targeting of Pokemon created by Spawners." +
                         "\nValid values are NONE (no special targeting), BLACKLIST (will not target spawner pokemon), and WHITELIST (only targets spawner pokemon)." +
@@ -141,15 +154,11 @@ public class ConfigHandler {
         expDropMethod = DROP_METHOD.valueOf(expDropMethodConf.get());
         spawnerTargetType = TARGET_TYPE.valueOf(spawnerTargetTypeConf.get());
         specTargetType = TARGET_TYPE.valueOf(specTargetTypeConf.get());
-
+        AutoBattleAI.TrainerAutoBattleGoal.maxHappinessTimerTicks = happinessTimerRate.get() * 20;
         if (specTargetListConf.get().isEmpty())
         {
             specTargetType = TARGET_TYPE.NONE;
         }
-    }
-
-    public static boolean validateSafariTarget(PixelmonEntity mon) {
-        return true;
     }
 
     public static boolean validateSpawnerTarget(PixelmonEntity mon) {

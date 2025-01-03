@@ -27,7 +27,7 @@ public class AutoBattleAI {
         AutoBattleHandler.AutoBattleInstance instance;
         PixelmonEntity owner;
         PixelmonEntity target = null;
-        static final int maxHappinessTimerTicks = 1200;
+        static public int maxHappinessTimerTicks = 1200;
         int happinessTimerTicks;
         boolean fatigued;
         /*
@@ -258,7 +258,7 @@ public class AutoBattleAI {
             if (ConfigHandler.useHappinessTimer.get()) {
                 happinessTimerTicks++;
                 if ((happinessTimerTicks % maxHappinessTimerTicks) == 0) {
-                    owner.getPokemon().decreaseFriendship(1);
+                    owner.getPokemon().decreaseFriendship(ConfigHandler.happinessTimerDecrement.get());
                     checkFatigued();
                 }
             }
