@@ -369,7 +369,10 @@ public class AutoBattleHandler {
         }
 
         public static boolean isValidAutoBattle(PixelmonEntity pixelmon) {
-            return !pixelmon.isDeadOrDying() && (pixelmon.battleController == null) && !pixelmon.isFlying() && !pixelmon.isSwimming() && !pixelmon.isBossPokemon() && !pixelmon.getPokemon().isShiny() && !pixelmon.getPokemon().isLegendary() && !NBTHandler.getTag(pixelmon, NBTHandler.autoBattlingTag);
+            return !pixelmon.isDeadOrDying() && (pixelmon.battleController == null) && !pixelmon.isFlying() &&
+                    !pixelmon.isSwimming() && !pixelmon.isBossPokemon() && !pixelmon.getPokemon().isShiny() &&
+                    !pixelmon.getPokemon().isLegendary() && !NBTHandler.getTag(pixelmon, NBTHandler.autoBattlingTag) &&
+                    ConfigHandler.validateSpawnerTarget(pixelmon) && ConfigHandler.validateSpecTarget(pixelmon.getPokemon());
         }
 
         //This handles the item drops, it's meant to be called in the itemdropsevent.

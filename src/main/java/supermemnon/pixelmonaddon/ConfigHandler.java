@@ -1,8 +1,17 @@
 package supermemnon.pixelmonaddon;
 
+import com.pixelmonmod.api.pokemon.PokemonSpecification;
+import com.pixelmonmod.api.pokemon.PokemonSpecificationProxy;
 import com.pixelmonmod.pixelmon.api.enums.ExperienceGainType;
+import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.util.Constants;
 import org.apache.logging.log4j.Level;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigHandler {
     public static ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
@@ -11,9 +20,12 @@ public class ConfigHandler {
         GROUND,
         MAGNET,
         GIVE,
-        NONE;
-
-
+        NONE
+    }
+    enum TARGET_TYPE {
+        NONE,
+        BLACKLIST,
+        WHITELIST
     }
     public static String messageAlreadyActive = "You already have a pokemon autobattling!";
     public static String messageSelectedNotActive = "The selected pokemon isn't sent out!";
@@ -42,13 +54,19 @@ public class ConfigHandler {
     public static ForgeConfigSpec.ConfigValue<Boolean> useHappinessTimer;
     public static ForgeConfigSpec.ConfigValue<Integer> minimumHappinessRequired;
 
+    public static ForgeConfigSpec.ConfigValue<String> spawnerTargetTypeConf;
+    public static TARGET_TYPE spawnerTargetType = TARGET_TYPE.NONE;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> specTargetListConf;
+    public static ForgeConfigSpec.ConfigValue<String> specTargetTypeConf;
+    public static TARGET_TYPE specTargetType = TARGET_TYPE.NONE;
+
     /*
     Here's the actual config handling lol
      */
-
     public static void initConfig() {
         configBuilder.push("AutoBattle Config");
 
+        exp_gain_type = ExperienceGainType.UNKNOWN;
         itemDropMethodConf = configBuilder
                 .comment("\nHow to handle items dropped by autobattled pokemon." +
                         "\nValid values are GROUND (drops on the ground at defeated mon), MAGNET (teleports item drop to trainer), GIVE (puts items in inventory), and NONE (cancels drops)." +
@@ -63,7 +81,6 @@ public class ConfigHandler {
                 .comment("\nPokemon XP multiplier based on defeated pokemon's dropped XP." +
                         "\nDefault value is 0.5")
                 .define("exp-multiplier", 0.5);
-        exp_gain_type = ExperienceGainType.UNKNOWN;
         autoBattleSeekRange = configBuilder
                 .comment("\nRange in blocks that a trainer's pokemon can search for wild pokemon to autobattle. Higher values may lag." +
                         "\nDefault value is 32")
@@ -98,6 +115,21 @@ public class ConfigHandler {
                 .comment("\nAn autobattling pokemon will refuse to autobattle, or stop autobattling, if happiness is at or below this number." +
                         "\nDefault value is -1 (no minimum)")
                 .define("minimum-happiness", -1);
+        spawnerTargetTypeConf = configBuilder
+                .comment("\nWhether there is special targeting of Pokemon created by Spawners." +
+                        "\nValid values are NONE (no special targeting), BLACKLIST (will not target spawner pokemon), and WHITELIST (only targets spawner pokemon)." +
+                        "\nDefault value is NONE.")
+                .define("spawner-target-type", TARGET_TYPE.NONE.toString());
+        specTargetTypeConf = configBuilder
+                .comment("\nWhether there is special targeting of Pokemon based on a specification list." +
+                        "\nValid values are NONE (will not use the list), BLACKLIST (will avoid matches with the list), and WHITELIST (only matches with the list)." +
+                        "\nDefault value is NONE.")
+                .define("spec-target-type", TARGET_TYPE.NONE.toString());
+        specTargetListConf = configBuilder
+                .comment("\nList of string specifications to validate, based on written pokemon spec (same as used in /pokespawn and /pokeedit)." +
+                        "\nFollows the rules set by 'spec-target-type' for how to handle spec validation." +
+                        "\nIf left empty, it will not be used.")
+                .defineList("spec-target-list", new ArrayList<>(), entry -> true);
 
 //        configBuilder = configBuilder.pop();
         configSpec = configBuilder.build();
@@ -106,7 +138,54 @@ public class ConfigHandler {
     public static void postInitConfig() {
         itemDropMethod = DROP_METHOD.valueOf(itemDropMethodConf.get());
         expDropMethod = DROP_METHOD.valueOf(expDropMethodConf.get());
-        PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("PostInitConfig: Loaded Proper Values:\n\tItem: %s\n\tEXP: %s", itemDropMethod, expDropMethod));
+        spawnerTargetType = TARGET_TYPE.valueOf(spawnerTargetTypeConf.get());
+        specTargetType = TARGET_TYPE.valueOf(specTargetTypeConf.get());
+        if (specTargetListConf.get().isEmpty()) { //Easier to check the enum than check for empty every time.
+            specTargetType = TARGET_TYPE.NONE;
+        }
     }
+
+    public static boolean validateSpawnerTarget(PixelmonEntity mon) {
+        switch (spawnerTargetType) {
+            case NONE: return true;
+            case WHITELIST: {
+                return mon.spawner != null;
+            }
+            case BLACKLIST: {
+                return mon.spawner == null;
+            }
+        }
+        return false;
+    }
+
+    public static boolean validateSpecTarget(Pokemon mon) {
+        if (specTargetType == TARGET_TYPE.NONE) {
+            return true;
+        }
+        if (specTargetType == TARGET_TYPE.BLACKLIST) {
+            for (String specString : specTargetListConf.get()) {
+                PokemonSpecification spec = PokemonSpecificationProxy.create(specString);
+                if (spec.matches(mon)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        else if (specTargetType == TARGET_TYPE.WHITELIST) {
+            for (String specString : specTargetListConf.get()) {
+                PokemonSpecification spec = PokemonSpecificationProxy.create(specString);
+                if (!spec.matches(mon)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    //            name = query.substring(0, query.indexOf(" "));
+    //            PokemonSpecification spec = PokemonSpecificationProxy.create(new String[]{query.substring(query.indexOf(" ") + 1) + " !egg"});
+    //            results = storage.findAll(spec);
+    //            ((List)results).removeIf(PokemonBase::isEgg);
 
 }
