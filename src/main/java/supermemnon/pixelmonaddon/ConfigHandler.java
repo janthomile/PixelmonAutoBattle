@@ -141,6 +141,15 @@ public class ConfigHandler {
         expDropMethod = DROP_METHOD.valueOf(expDropMethodConf.get());
         spawnerTargetType = TARGET_TYPE.valueOf(spawnerTargetTypeConf.get());
         specTargetType = TARGET_TYPE.valueOf(specTargetTypeConf.get());
+
+        if (specTargetListConf.get().isEmpty())
+        {
+            specTargetType = TARGET_TYPE.NONE;
+        }
+    }
+
+    public static boolean validateSafariTarget(PixelmonEntity mon) {
+        return true;
     }
 
     public static boolean validateSpawnerTarget(PixelmonEntity mon) {
@@ -157,26 +166,26 @@ public class ConfigHandler {
     }
 
     public static boolean validateSpecTarget(Pokemon mon) {
-        if (specTargetType == TARGET_TYPE.NONE) {
-            return true;
-        }
-        if (specTargetType == TARGET_TYPE.BLACKLIST) {
-            for (String specString : specTargetListConf.get()) {
-                PokemonSpecification spec = PokemonSpecificationProxy.create(specString);
-                if (spec.matches(mon)) {
-                    return false;
+        switch (specTargetType) {
+            case NONE: return true;
+            case BLACKLIST: {
+                for (String specString : specTargetListConf.get()) {
+                    PokemonSpecification spec = PokemonSpecificationProxy.create(specString);
+                    if (spec.matches(mon)) {
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
-        }
-        else if (specTargetType == TARGET_TYPE.WHITELIST) {
-            for (String specString : specTargetListConf.get()) {
-                PokemonSpecification spec = PokemonSpecificationProxy.create(specString);
-                if (!spec.matches(mon)) {
-                    return false;
+            case WHITELIST: {
+                for (String specString : specTargetListConf.get()) {
+                    PokemonSpecification spec = PokemonSpecificationProxy.create(specString);
+                    if (!spec.matches(mon)) {
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
         }
         return false;
     }
