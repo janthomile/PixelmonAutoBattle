@@ -16,6 +16,7 @@ import com.pixelmonmod.pixelmon.entities.npcs.registry.DropItemRegistry;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 import com.pixelmonmod.pixelmon.enums.heldItems.EnumHeldItems;
 import com.pixelmonmod.pixelmon.items.ExpAllItem;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.PrioritizedGoal;
 import net.minecraft.entity.item.ExperienceOrbEntity;
@@ -27,8 +28,10 @@ import net.minecraft.network.play.server.STitlePacket;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
@@ -45,8 +48,9 @@ public class AutoBattleHandler {
     public static float partyDistributeXPFactor = 0.5f;
     public static final int autoBattlePriority = -5; //Goal priority, 'higher' than seekwild so it can override it.
     public static final int seekWildPriority = 0; //Goal priority, 0 for general 'highest'.
-    public static void sendActionBarNotif(ServerPlayerEntity player, ITextComponent text) {
+    public static void sendActionBarNotif(ServerPlayerEntity player, IFormattableTextComponent text) {
         player.playSound(SoundEvents.UI_TOAST_IN, 0.25f, 1.88f);
+        text.withStyle(TextFormatting.LIGHT_PURPLE);
         STitlePacket packet = new STitlePacket(STitlePacket.Type.ACTIONBAR, text);
         player.connection.send(packet);
     }
@@ -156,7 +160,6 @@ public class AutoBattleHandler {
         //Handles ending the auto battle, removing tags, goals, etc...
         //Should be called from within the trainerGoal instance here
         public  void endAutoBattle() {
-            trainerGoal.target = null;
 
             trainerGoal.checkFatigued();
 
@@ -196,9 +199,7 @@ public class AutoBattleHandler {
                 }
             }
 
-
-
-
+            wildMon.goalSelector.removeGoal(wildGoal);
 
             //Successful battle. Has drops and exp.
             if (result == BattleResultType.WIN || result == BattleResultType.WIN_HURT) {
@@ -209,11 +210,14 @@ public class AutoBattleHandler {
                 wildMon.kill();
             }
             // Didn't win but damaged the opponent
-            else if (result == BattleResultType.DRAW) {
+            else {
+                NBTHandler.setTag(wildMon, NBTHandler.autoBattlingTag, false);
+                trainerGoal.warpToTrainer();
             }
 
             if (trainerMon.getPokemon().getHealthPercentage() <= 5.0f) {
                 trainer.sendMessage(new StringTextComponent(formatBattleMessage(ConfigHandler.messageLowHealthReturn, trainerMon, wildMon)), trainer.getUUID());
+                trainerGoal.warpToTrainer();
             }
         }
 
@@ -273,7 +277,7 @@ public class AutoBattleHandler {
             if (((PixelmonEntity) entity).getOwner() != null) {
                 return false;
             }
-            boolean battling =  (NBTHandler.getTag(entity, NBTHandler.autoBattlingTag));
+//            boolean battling =  (NBTHandler.getTag(entity, NBTHandler.autoBattlingTag));
             //Most recent change is adding isWildPokemon()... it might not work for detecting random wild pixelmonentities
             return  (NBTHandler.getTag(entity, NBTHandler.autoBattlingTag));
         }
@@ -296,6 +300,16 @@ public class AutoBattleHandler {
                 }
             }
             return false;
+        }
+
+        public static boolean setAutoBattlingTarget(ServerPlayerEntity player, LivingEntity target) {
+            Pokemon pokemon =  StorageProxy.getParty(player).getSelectedPokemon();
+            PixelmonEntity pixelmonEntity = pokemon.getPixelmonEntity().orElse(null);
+            if (pixelmonEntity == null) {
+                return false;
+            }
+            pixelmonEntity.setTarget(target);
+            return true;
         }
 
         // Handles damage from autobattle and gets the result of the battle.
@@ -323,7 +337,7 @@ public class AutoBattleHandler {
             }
             // Landslide difference in defeat
             else if (levelDifference <= -ConfigHandler.landslideLevelDifference.get()) {
-                if (sendEffectiveness > Effectiveness.Normal.value) {
+                if (sendEffectiveness > receiveEffectiveness) {
                     result = BattleResultType.DRAW;
                 }
                 else {
@@ -332,31 +346,42 @@ public class AutoBattleHandler {
             }
             // Match or higher than opponent
             else if (levelDifference >= 0) {
-                if (sendEffectiveness > Effectiveness.Super.value) {
-                    result = BattleResultType.WIN;
-                }
-                else if (sendEffectiveness > Effectiveness.Normal.value) {
-                    result = RandomHelper.getRandomChance(4) ? BattleResultType.WIN_HURT : BattleResultType.WIN;
+                if (sendEffectiveness > receiveEffectiveness) {
+                    result = RandomHelper.getRandomChance(2) ? BattleResultType.WIN_HURT : BattleResultType.WIN;
                 }
                 else {
-                    result = RandomHelper.getRandomChance(4) ? BattleResultType.DRAW : BattleResultType.WIN_HURT;
+                    result = RandomHelper.getRandomChance(2) ? BattleResultType.WIN_HURT : BattleResultType.DRAW;
                 }
+//                if (sendEffectiveness > Effectiveness.Super.value) {
+//                    result = BattleResultType.WIN;
+//                }
+//                else if (sendEffectiveness > Effectiveness.Normal.value) {
+//                    result = RandomHelper.getRandomChance(2) ? BattleResultType.WIN_HURT : BattleResultType.WIN;
+//                }
+//                else {
+//                    result = RandomHelper.getRandomChance(2) ? BattleResultType.DRAW : BattleResultType.WIN_HURT;
+//                }
             }
             // Lower than opponent
             else {
-                if (sendEffectiveness > Effectiveness.Super.value) {
-                    result = RandomHelper.getRandomChance(4) ? BattleResultType.DRAW : BattleResultType.WIN_HURT;
-                }
-                else if (sendEffectiveness >= Effectiveness.Normal.value) {
-                    result = RandomHelper.getRandomChance(4) ? BattleResultType.DEFEAT : BattleResultType.DRAW;
+                if (sendEffectiveness > receiveEffectiveness) {
+                    result = RandomHelper.getRandomChance(2) ? BattleResultType.WIN_HURT : BattleResultType.DRAW;
                 }
                 else {
-                    result = RandomHelper.getRandomChance(2) ? BattleResultType.DRAW : BattleResultType.WIN_HURT;
+                    result = RandomHelper.getRandomChance(2) ? BattleResultType.DRAW : BattleResultType.DEFEAT;
                 }
+//                if (sendEffectiveness > Effectiveness.Super.value) {
+//                    result = RandomHelper.getRandomChance(2) ? BattleResultType.DRAW : BattleResultType.WIN_HURT;
+//                }
+//                else if (sendEffectiveness >= Effectiveness.Normal.value) {
+//                    result = RandomHelper.getRandomChance(2) ? BattleResultType.DEFEAT : BattleResultType.DRAW;
+//                }
+//                else {
+//                    result = RandomHelper.getRandomChance(2) ? BattleResultType.DRAW : BattleResultType.WIN_HURT;
+//                }
             }
 
-            boolean isLandslide = levelDifference >= ConfigHandler.landslideLevelDifference.get();
-    //        PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Battle Results:\n\tLandslide: %s\n\tSend Effectiveness: %s\n\tRec. Effectiveness: %s", isLandslide, sendEffectiveness, receiveEffectiveness));
+//            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Battle Results:\n\tResult: %s\n\tSend Effectiveness: %s\n\tRec. Effectiveness: %s", result, sendEffectiveness, receiveEffectiveness));
 
             if (result == BattleResultType.WIN) {
                 return result;

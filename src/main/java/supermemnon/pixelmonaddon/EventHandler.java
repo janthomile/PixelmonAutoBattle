@@ -4,6 +4,7 @@ import com.pixelmonmod.pixelmon.api.events.KeyEvent;
 import com.pixelmonmod.pixelmon.comm.packetHandlers.EnumKeyPacketMode;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,6 +13,8 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.permission.PermissionAPI;
@@ -44,6 +47,14 @@ public class EventHandler {
                 return;
             }
             event.setCanceled(true);
+        }
+
+        @SubscribeEvent
+        public static void onPunchPokemon(AttackEntityEvent event) {
+            if (!ConfigHandler.usePunchToTarget.get() || !(event.getTarget() instanceof PixelmonEntity)) {
+                return;
+            }
+            AutoBattleHandler.BattleHandler.setAutoBattlingTarget((ServerPlayerEntity) event.getPlayer(), (LivingEntity) event.getTarget());
         }
 
     }

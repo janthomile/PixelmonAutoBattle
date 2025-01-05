@@ -3,6 +3,7 @@ package supermemnon.pixelmonaddon;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
@@ -10,6 +11,7 @@ import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import org.apache.logging.log4j.Level;
 
@@ -27,9 +29,10 @@ public class AutoBattleAI {
         AutoBattleHandler.AutoBattleInstance instance;
         PixelmonEntity owner;
         PixelmonEntity target = null;
+        PixelmonEntity prevTarget = null;
         static public int maxHappinessTimerTicks = 1200;
-        int happinessTimerTicks;
-        boolean fatigued;
+        int happinessTimerTicks = 1;
+        boolean fatigued = false;
         /*
             Following Behaviour
          */
@@ -56,6 +59,7 @@ public class AutoBattleAI {
             this.instance = i;
             this.owner = mon;
             this.happinessTimerTicks = maxHappinessTimerTicks;
+            fatigued = false;
             checkFatigued();
             AutoBattleHandler.NBTHandler.setTag(owner, AutoBattleHandler.NBTHandler.autoBattleEnableTag, false);
             setFlags(EnumSet.of(Flag.TARGET, Flag.MOVE,Flag.LOOK,Flag.JUMP));
@@ -63,7 +67,11 @@ public class AutoBattleAI {
         }
 
         public void checkFatigued() {
+            boolean wasFatigued = this.fatigued;
             this.fatigued = !(owner.getPokemon().getHealthPercentage() >= 5.0f) || !(this.owner.getPokemon().getFriendship() > ConfigHandler.minimumHappinessRequired.get());
+            if (this.fatigued && !wasFatigued && !(owner.getOwner() == null)) {
+                AutoBattleHandler.sendActionBarNotif((ServerPlayerEntity) owner.getOwner(), new StringTextComponent(ConfigHandler.messageFatigued));
+            }
         }
         public void warpToTrainer() {
             if (owner.getOwner() == null) {
@@ -76,6 +84,7 @@ public class AutoBattleAI {
 
         public void swapSeeking() {
 //            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Swap to Seeking from" + currentState.toString()));
+            prevTarget = target;
             resetTicks = resetMaxTicks;
             currentState = GoalState.SEEKING;
         }
@@ -158,8 +167,8 @@ public class AutoBattleAI {
             }
             //turnTicks are finished, so we end the autobattle and switch to seeking
 //            PixelmonAutobattle.getLOGGER().log(Level.INFO, "End Autobattle: Lunge");
-            instance.endAutoBattle();
             swapFollowTrainer();
+            instance.endAutoBattle();
         }
         public void swapFollowTrainer() {
             //Start with cooldown zero to find a target right away
@@ -189,7 +198,6 @@ public class AutoBattleAI {
                 }
             }
             target = null;
-
             if (owner.getOwner() == null) {
                 return;
             }
@@ -215,7 +223,7 @@ public class AutoBattleAI {
             int r = ConfigHandler.autoBattleSeekRange.get();
 //            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("findNearestTarget:\n\tradius: %s\n\t", r));
             for (PixelmonEntity entity : owner.level.getEntitiesOfClass(PixelmonEntity.class, owner.getBoundingBox().expandTowards(r, 4.0, r))) {
-                if (!AutoBattleHandler.BattleHandler.isValidAutoBattle(entity) || (entity == owner)) {
+                if (!AutoBattleHandler.BattleHandler.isValidAutoBattle(entity) || (entity == owner) || (entity == prevTarget)) {
 //                    PixelmonAutobattle.getLOGGER().log(Level.INFO, "\tfindNearestTarget: skipped self");
                     continue;
                 }
