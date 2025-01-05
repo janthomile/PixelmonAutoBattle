@@ -148,13 +148,11 @@ public class AutoBattleHandler {
 
         //Sets up the nbt tags for proofing and inits the wild mon's auto battle goals.
         public  void startAutoBattle(PixelmonEntity wildMon) {
-//            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Starting auto battle between %s and %s", trainerMon.getName().getString(), wildMon.getName().getString()));
             AutoBattleHandler.NBTHandler.setTag(trainerMon, AutoBattleHandler.NBTHandler.autoBattlingTag, true);
             AutoBattleHandler.NBTHandler.setTag(wildMon, AutoBattleHandler.NBTHandler.autoBattlingTag, true);
-            // These things predicate on their nbt boolean tag and will eat themselves once they are invalid
             initWildMon(wildMon);
-            trainerMon.setTarget(wildMon);
-            wildMon.setTarget(trainerMon);
+//            trainerMon.setTarget(wildMon);
+//            wildMon.setTarget(trainerMon);
         }
 
         //Handles ending the auto battle, removing tags, goals, etc...
