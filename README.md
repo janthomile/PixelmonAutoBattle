@@ -13,6 +13,7 @@ Brings Let's Go Autobattling into Pixelmon! (Reforged 1.16.5)
 * The amount of damage Autobattling Pokemon receive during a Draw, Defeat, or Pyrrhic Victory.
 * Whether Pokemon can levelup from Autobattling XP.
 * Whether Pokemon can faint from damage received during Autobattling.
+* Make hitting a Pokemon target them, the same way as pressing "V" (Target Pokemon keybind).
 
 ## Commands:
 * `/autobattle` acts as an alternative to the Sneak+Key method described above.
