@@ -1,16 +1,12 @@
-package supermemnon.pixelmonaddon;
+package supermemnon.pixelmonautobattle;
 
 import com.pixelmonmod.api.pokemon.PokemonSpecification;
 import com.pixelmonmod.api.pokemon.PokemonSpecificationProxy;
 import com.pixelmonmod.pixelmon.api.enums.ExperienceGainType;
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.util.Constants;
-import org.apache.logging.log4j.Level;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

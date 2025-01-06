@@ -1,4 +1,4 @@
-package supermemnon.pixelmonaddon;
+package supermemnon.pixelmonautobattle;
 
 import com.pixelmonmod.pixelmon.api.events.KeyEvent;
 import com.pixelmonmod.pixelmon.comm.packetHandlers.EnumKeyPacketMode;
@@ -9,18 +9,14 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.permission.PermissionAPI;
-import org.apache.logging.log4j.Level;
 
-import static supermemnon.pixelmonaddon.ConfigHandler.messageNoPermissionToggle;
+import static supermemnon.pixelmonautobattle.ConfigHandler.messageNoPermissionToggle;
 
 public class EventHandler {
 

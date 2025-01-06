@@ -1,4 +1,4 @@
-package supermemnon.pixelmonaddon;
+package supermemnon.pixelmonautobattle;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;

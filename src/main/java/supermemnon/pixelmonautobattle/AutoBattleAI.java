@@ -1,11 +1,9 @@
-package supermemnon.pixelmonaddon;
+package supermemnon.pixelmonautobattle;
 
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.client.CEntityActionPacket;
-import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.util.SoundCategory;
@@ -13,7 +11,6 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
-import org.apache.logging.log4j.Level;
 
 import java.util.EnumSet;
 

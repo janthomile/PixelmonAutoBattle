@@ -1,7 +1,6 @@
-package supermemnon.pixelmonaddon;
+package supermemnon.pixelmonautobattle;
 
 import com.pixelmonmod.pixelmon.Pixelmon;
-import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
