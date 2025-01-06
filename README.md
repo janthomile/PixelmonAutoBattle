@@ -17,3 +17,5 @@ Brings Let's Go Autobattling into Pixelmon! (Reforged 1.16.5)
 
 ## Commands:
 * `/autobattle` acts as an alternative to the Sneak+Key method described above.
+* `/autobattle set <player> <off>` disables autobattle for any of the player's current Pokemon.
+* `/autobattle set <player> <on> <forced>`enables autobattle for the player's currently selected Pokemon. The forced option determines whether the Pokemon will be sent out if it isn't already.

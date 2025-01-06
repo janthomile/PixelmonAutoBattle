@@ -247,7 +247,7 @@ public class AutoBattleHandler {
             else {
                 p =  StorageProxy.getParty(player).get(slot);
             }
-            if (p == null) { return false;}
+            if (p == null || (p.getHealthPercentage() < 5.0f)) { return false;}
             PixelmonEntity pixelmon;
             if (forceOut) {
                 pixelmon = p.getOrCreatePixelmon(player);
