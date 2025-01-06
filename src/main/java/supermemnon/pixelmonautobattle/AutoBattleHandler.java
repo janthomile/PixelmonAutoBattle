@@ -24,6 +24,7 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -250,12 +251,13 @@ public class AutoBattleHandler {
             if (p == null || (p.getHealthPercentage() < 5.0f)) { return false;}
             PixelmonEntity pixelmon;
             if (forceOut) {
-                pixelmon = p.getOrCreatePixelmon(player);
+                pixelmon = p.getOrSpawnPixelmon(player);
             }
             else {
                 pixelmon = p.getPixelmonEntity().orElse(null);
             }
             if (pixelmon == null) { return false; }
+//            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Enable Auto Battle\n\t%s\n\t%s", p, pixelmon));
             setAutoBattle(player, pixelmon, true);
             return true;
         }
