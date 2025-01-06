@@ -24,7 +24,7 @@ public class EventHandler {
     public static class ForgeEvents {
         @SubscribeEvent
         public static void registerCommands(RegisterCommandsEvent event) {
-            Commands.register(event.getDispatcher());
+            AutoBattleCommands.register(event.getDispatcher());
         }
 
         @SubscribeEvent

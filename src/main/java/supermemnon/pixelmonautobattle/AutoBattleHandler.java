@@ -238,6 +238,39 @@ public class AutoBattleHandler {
             setAutoBattle(player, pixelmonEntity, !isEnabled);
         }
 
+        //Valid slots are 0-5 for party number. -1 gets the currently selected slot.
+        public static boolean enableAutoBattle(ServerPlayerEntity player, int slot, boolean forceOut) {
+            Pokemon p;
+            if (slot == -1) {
+                p = StorageProxy.getParty(player).getSelectedPokemon();
+            }
+            else {
+                p =  StorageProxy.getParty(player).get(slot);
+            }
+            if (p == null) { return false;}
+            PixelmonEntity pixelmon;
+            if (forceOut) {
+                pixelmon = p.getOrCreatePixelmon(player);
+            }
+            else {
+                pixelmon = p.getPixelmonEntity().orElse(null);
+            }
+            if (pixelmon == null) { return false; }
+            setAutoBattle(player, pixelmon, true);
+            return true;
+        }
+
+        public static void disableAutoBattle(ServerPlayerEntity player) {
+            PlayerPartyStorage party =  StorageProxy.getParty(player);
+            for (Pokemon p : party.getOriginalParty()) {
+                if (p == null) { continue; }
+                PixelmonEntity pixelmon = p.getPixelmonEntity().orElse(null);
+                if (pixelmon == null) { continue; }
+                setAutoBattle(player, pixelmon, false);
+            }
+//            PixelmonEntity pixelmonEntity = pokemon.getPixelmonEntity().orElse(null);
+        }
+
         public static void setAutoBattle(ServerPlayerEntity player, PixelmonEntity pixelmonEntity, boolean value) {
             if (value) {
                 //We can handle making a new instance here because we can also destroy it
