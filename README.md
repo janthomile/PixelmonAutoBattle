@@ -16,6 +16,11 @@ Brings Let's Go Autobattling into Pixelmon! (Reforged 1.16.5)
 * Make hitting a Pokemon target them, the same way as pressing "V" (Target Pokemon keybind).
 
 ## Commands:
-* `/autobattle` acts as an alternative to the Sneak+Key method described above.
-* `/autobattle set <player> <off>` disables autobattle for any of the player's current Pokemon.
-* `/autobattle set <player> <on> <forced>`enables autobattle for the player's currently selected Pokemon. The forced option determines whether the Pokemon will be sent out if it isn't already.
+* `/autobattle toggle` acts as an alternative to the Sneak+Key method described above. (No permission requirement)
+* `/autobattle set <player> <off>` disables autobattle for any of the player's current Pokemon. (Operator permission requirement)
+* `/autobattle set <player> <on> <forced>`enables autobattle for the player's currently selected Pokemon. The forced option determines whether the Pokemon will be sent out if it isn't already. (Operator permission requirement)
+
+## Permission Nodes:
+* `minecraft.command.autobattle`must be given as a baseline.
+* `pixelmonautobattle.toggle` only has an effect when set to `false`, otherwise players can use it freely.
+* `pixelmonautobattle.set` is off by default, and generally is for moderators or admins.

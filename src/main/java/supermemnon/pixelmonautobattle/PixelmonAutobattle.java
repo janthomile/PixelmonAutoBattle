@@ -17,6 +17,7 @@ public class PixelmonAutobattle
 {
     public static final String MODID = "pixelmonautobattle";
     public static final String TOGGLE_PERMISSION = MODID + ".toggle";
+    public static final String SET_PERMISSION = MODID + ".set";
     private static final Logger LOGGER = LogManager.getLogger();
     private static PixelmonAutobattle instance;
     public static PixelmonAutobattle getInstance() {
@@ -38,5 +39,6 @@ public class PixelmonAutobattle
     {
         ConfigHandler.postInitConfig();
         PermissionAPI.registerNode(TOGGLE_PERMISSION, DefaultPermissionLevel.ALL, "");
+        PermissionAPI.registerNode(SET_PERMISSION, DefaultPermissionLevel.OP, "");
     }
 }
