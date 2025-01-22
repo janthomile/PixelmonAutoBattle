@@ -1,20 +1,94 @@
 package supermemnon.pixelmonautobattle;
 
+import com.pixelmonmod.pixelmon.api.pokemon.species.aggression.Aggression;
+import com.pixelmonmod.pixelmon.api.pokemon.stats.BattleStatsType;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
 import net.minecraft.command.arguments.EntityAnchorArgument;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathNavigator;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
+import org.apache.logging.log4j.Level;
 
 import java.util.EnumSet;
 
 public class AutoBattleAI {
+    public static class WildHostileGoal extends Goal {
+        PixelmonEntity owner;
+        enum DAMAGE_TYPE {
+            PHYSICAL,
+            SPECIAL
+        }
+        float damage = 0.0f;
+        double baseDistance = 2.0;
+        float jumpStrength = 0.1f;
+        static final int maxEngageTicks = 5;
+        int engageTicks = 0;
+        DAMAGE_TYPE damageType = DAMAGE_TYPE.PHYSICAL;
+
+        public WildHostileGoal(PixelmonEntity _owner) {
+            this.owner = _owner;
+            initDamage();
+            if (owner.getAggression() == Aggression.PASSIVE) {
+                owner.setAggression(Aggression.AGGRESSIVE);
+            }
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
+        }
+        public void lunge(PixelmonEntity a, LivingEntity b) {
+            a.knockback(jumpStrength, a.getX() - b.getX(), a.getZ() - b.getZ());
+            a.doJump();
+        }
+        public void initDamage() {
+            int atk = owner.getPokemon().getStat(BattleStatsType.ATTACK);
+            int spAtk = owner.getPokemon().getStat(BattleStatsType.SPECIAL_ATTACK);
+            if (atk > spAtk) {
+                damageType = DAMAGE_TYPE.PHYSICAL;
+            }
+            else {
+                damageType = DAMAGE_TYPE.SPECIAL;
+            }
+            //32 picked as the divisor based on max atk/spatk stats at level 100 (around 520+) which cap to about 16 damage (8 hearts).
+            damage = (float) Math.ceil(((float)Math.max(atk, spAtk)) / 32);
+
+//            PixelmonAutobattle.getLOGGER().log(Level.INFO, String.format("Calculated Damage:\n\tATK:%s, SPATK: %s\n\tAmount: %s\n\tType: %s", atk, spAtk, damage, damageType));
+        }
+        @Override
+        public boolean canUse() {
+            //Within range
+            return (owner.getTarget() != null) && //Has target
+                    (owner.getTarget() instanceof ServerPlayerEntity) && //Target is player
+                    !(((ServerPlayerEntity) owner.getTarget()).isCreative()) && //Target is not creative
+                    !(owner.getTarget().isSpectator()) && //Target is not spectator
+                    !(owner.getAggressionTimer() > 0) && //Aggression timer is valid
+                    (owner.battleController == null) && //Not in battle
+                    (owner.hitByPokeball == null) && //Not Being Captured
+                    !(owner.getBossTier().isBoss()) &&  //Not a boss
+                    owner.getTarget().distanceTo(owner) < baseDistance; // In range
+        }
+
+        @Override
+        public void tick() {
+//            engageTicks++;
+//            if (engageTicks < maxEngageTicks) {
+//                return;
+//            }
+//            engageTicks = 0;
+            if (owner.getTarget() == null || owner.getTarget().hurtTime > 0) {return;}
+            if (owner.isOnGround()) {
+                lunge(owner, owner.getTarget());
+            }
+            owner.getTarget().hurt(DamageSource.mobAttack(owner), damage);
+        }
+
+    }
     public static class TrainerAutoBattleGoal extends Goal {
         //This class should function as a state machine between SeekMode (initial behaviour, seeking mons) and BattleMode (similar to WildBattleGoal ai, but also handles the timer and puppeteers the mons).
         enum GoalState {

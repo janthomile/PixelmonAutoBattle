@@ -38,7 +38,7 @@ public class AutoBattleHandler {
     }
     public static float partyDistributeXPFactor = 0.5f;
     public static final int autoBattlePriority = -5; //Goal priority, 'higher' than seekwild so it can override it.
-    public static final int seekWildPriority = 0; //Goal priority, 0 for general 'highest'.
+    public static final int seekWildPriority = -2; //Goal priority, 0 for general 'highest'.
     public static void sendActionBarNotif(ServerPlayerEntity player, IFormattableTextComponent text) {
         player.playSound(SoundEvents.UI_TOAST_IN, 0.25f, 1.88f);
         text.withStyle(TextFormatting.LIGHT_PURPLE);
