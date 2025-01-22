@@ -6,6 +6,8 @@ Brings Let's Go Autobattling into Pixelmon! (Reforged 1.16.5)
 * Autobattling Pokemon will seek out nearby wild Pokemon and engage them in a short sequence which will end in victory or defeat, depending largely on level difference and type matching.
 * Autobattling Pokemon will ignore Legendary, Shiny, and Boss wild Pokemon.
 * EXP Share and EXP All are taken into account when distributing XP.
+* Hostile Pokemon! Wild Pokemon spawned from a `Pixelmon Spawner` with the Original Trainer of "`dungeon`" will automatically become Aggressive and attack the player rather than starting battles. Their damage is calculated based on their highest attack stat.
+
 ### Configurables
 * Defeated Pixelmon will have their dropped EXP and Items sent to the Autobattling Pokemon's owner.
 * EXP gain multiplier from Autobattling (Halved by default).
