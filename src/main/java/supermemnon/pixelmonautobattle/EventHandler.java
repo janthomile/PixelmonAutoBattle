@@ -6,6 +6,7 @@ import com.pixelmonmod.pixelmon.api.events.spawning.PixelmonSpawnerEvent;
 import com.pixelmonmod.pixelmon.api.events.spawning.SpawnEvent;
 import com.pixelmonmod.pixelmon.api.pokemon.species.aggression.Aggression;
 import com.pixelmonmod.pixelmon.battles.controller.participants.BattleParticipant;
+import com.pixelmonmod.pixelmon.battles.controller.participants.PixelmonWrapper;
 import com.pixelmonmod.pixelmon.battles.controller.participants.WildPixelmonParticipant;
 import com.pixelmonmod.pixelmon.comm.packetHandlers.EnumKeyPacketMode;
 import com.pixelmonmod.pixelmon.entities.pixelmon.PixelmonEntity;
@@ -103,7 +104,7 @@ public class EventHandler {
         @SubscribeEvent
         public static void onBattleEnd(BattleEndEvent event) {
             for (BattleParticipant bp : event.getResults().keySet()) {
-                if (bp instanceof WildPixelmonParticipant && isWildHostile((((WildPixelmonParticipant) bp).asWrapper().entity))) {
+                if ((bp instanceof WildPixelmonParticipant) && (((WildPixelmonParticipant) bp).asWrapper() != null) && isWildHostile((((WildPixelmonParticipant) bp).asWrapper().entity))) {
                     PixelmonEntity p = ((WildPixelmonParticipant) bp).asWrapper().entity;
                     p.setAggression(Aggression.AGGRESSIVE);
                     p.setAggressionTimer(50);
